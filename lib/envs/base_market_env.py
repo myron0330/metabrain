@@ -6,8 +6,10 @@ from gym import Env
 from utils.exceptions import Exceptions
 
 
-class MarketEnvironment(Env):
-
+class BaseMarketEnv(Env):
+    """
+    Base market environment inherited by gym Env.
+    """
     def __init__(self, **kwargs):
         """
         Initialize your environment parameter here.
