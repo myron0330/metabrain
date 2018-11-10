@@ -4,12 +4,20 @@
 # **********************************************************************************#
 from gym import Env
 from utils.exceptions import Exceptions
+from . action_space import LongShortSpace
+from . env_snapshot import EnvSnapshot
+from . step_info import StepInfo
+from . observer import Observer
 
 
-class BaseMarketEnv(Env):
+class MarketEnv(Env):
     """
     Base market environment inherited by gym Env.
     """
+    action_space = LongShortSpace()
+    env_snapshot = EnvSnapshot()
+    observer = Observer()
+
     def __init__(self, **kwargs):
         """
         Initialize your environment parameter here.
@@ -22,35 +30,55 @@ class BaseMarketEnv(Env):
             'reward_range',
             'spec',
             'action_space',
-            'observation_space'
+            'observation_space',
+            'env_snapshot',
+            'observer'
         }
         if not set(kwargs).issubset(set(valid_parameters)):
             raise Exceptions.INVALID_INITIALIZE_PARAMETERS
         self.__dict__.update(kwargs)
 
-    def step(self, action):
-        """Run one timestep of the environment's dynamics. When end of
+    def step(self, action, state_transition=None, reward_calculator=None, done_condition=None):
+        """
+        Run one time step of the environment's dynamics. When end of
         episode is reached, you are responsible for calling `reset()`
         to reset this environment's state.
 
         Accepts an action and returns a tuple (observation, reward, done, info).
 
         Args:
-            action (object): an action provided by the environment
+            action(object): an action provided from policy makers
+            state_transition(func): state transition function with it's inputs are action and current state
+            reward_calculator(func): reward calculating function
+            done_condition(func): done condition
 
         Returns:
-            observation (object): agent's observation of the current environment
-            reward (float) : amount of reward returned after previous action
-            done (boolean): whether the episode has ended, in which case further step() calls will return undefined results
-            info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
+            StepInfo: step info instance
         """
-        raise NotImplementedError
+        state = self.env_snapshot.state
+        next_state = state_transition(action=action, state=state)
+        observation = self.observer.observe()
+        reward = reward_calculator(state=next_state, observation=observation)
+        self.env_snapshot.action = action
+        self.env_snapshot.state = next_state
+        self.env_snapshot.reward = reward
+
+        done = done_condition(reward)
+        step_info_parameters = {
+            'observation': observation,
+            'reward': reward,
+            'done': done,
+            'info': dict()
+        }
+        step_info = StepInfo(**step_info_parameters)
+        return step_info
 
     def reset(self):
-        """Resets the state of the environment and returns an initial observation.
+        """
+        Resets the state of the environment and returns an initial observation.
 
-        Returns: observation (object): the initial observation of the
-            space.
+        Returns:
+             observation(object): the initial observation of the space.
         """
         raise NotImplementedError
 
