@@ -5,7 +5,7 @@
 # **********************************************************************************#
 """
 from unittest import TestCase
-from lib.env.market_env import MarketEnv
+from lib.environment.market_env import MarketEnv
 
 
 class TestMarketEnv(TestCase):
@@ -21,5 +21,4 @@ class TestMarketEnv(TestCase):
         Test market env.
         """
         action = 'BUY'
-        state_transition = None, reward_calculator = None, done_condition = None
         self.market_env.step()
