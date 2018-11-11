@@ -1,7 +1,9 @@
+"""
 # -*- coding: UTF-8 -*-
 # **********************************************************************************#
 #     File: Enums.
 # **********************************************************************************#
+"""
 
 
 class BaseEnums(object):
@@ -47,8 +49,8 @@ class TradingAction(BaseEnums):
     """
     Trading action enums.
     """
-    BUY = 'BUY'
-    SELL = 'SELL'
-    SHORT = 'SHORT'
-    COVER = 'COVER'
-    FAIR = 'FAIR'
+    BUY = 'BUY'     # long open
+    SELL = 'SELL'   # long close
+    SHORT = 'SHORT'     # short open
+    COVER = 'COVER'     # short close
+    FAIR = 'FAIR'       # hold

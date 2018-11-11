@@ -1,7 +1,9 @@
+"""
 # -*- coding: UTF-8 -*-
 # **********************************************************************************#
 #     File: Market environment.
 # **********************************************************************************#
+"""
 from gym import Env
 from utils.exceptions import Exceptions
 from . action_space import LongShortSpace
@@ -105,7 +107,6 @@ class MarketEnv(Env):
 
         Args:
             mode (str): the mode to render with
-            close (bool): close all open renderings
 
         Example:
 

@@ -1,7 +1,9 @@
+"""
 # **********************************************************************************#
 #     File: Database API.
 #     Desc: define general database API for the service.
 # **********************************************************************************#
+"""
 import os
 import json
 import bisect

@@ -1,7 +1,9 @@
+"""
 # -*- coding: UTF-8 -*-
 # **********************************************************************************#
 #     File: Data structure utils
 # **********************************************************************************#
+"""
 
 
 def recursive(formula, formatter=(lambda x: None)):
@@ -122,7 +124,7 @@ class LinkedList(object):
 
     def traversal(self, func, *args, **kwargs):
 
-        @traversal(returnable=True)
+        @traversal()
         def executor(node, *inner_args, **inner_kwargs):
             return func(node, *inner_args, **inner_kwargs)
 
@@ -147,7 +149,7 @@ if __name__ == '__main__':
     e = Node('IHM0')
     link = LinkedList()
     link.extend([a, b, c, d, e])
-    print link.get_length_by_recursive(), link.get_length()
+    print(link.get_length_by_recursive(), link.get_length())
     recursive_value = link.recursive(formula=(lambda x, y: x | y), formatter=(lambda x: {x.obj}))
     forward_value = link.forward(formula=(lambda x, y: x | y), formatter=(lambda x: {x.obj}))
-    print recursive_value == forward_value
+    print(recursive_value == forward_value)

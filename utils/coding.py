@@ -1,7 +1,9 @@
+"""
 # -*- coding: UTF-8 -*-
 # **********************************************************************************#
 #     File:
 # **********************************************************************************#
+"""
 import re
 from string import Template
 
@@ -37,9 +39,9 @@ def generate_class_object(object_name, attributes,
     template = template or VALUE_OBJECT_TEMPLATE
     attributes = attributes if isinstance(attributes, dict) else {_: None for _ in attributes}
     slots_list = '\n'.join(["        '{}',".format(_) for _ in attributes])
-    parameters = ', '.join(['{}={}'.format(key, value) for key, value in attributes.iteritems()])
+    parameters = ', '.join(['{}={}'.format(key, value) for key, value in attributes.items()])
     attributes = '\n'.join(['        self.{} = {}'.format(_, _) for _ in attributes])
-    if isinstance(bases, (str, unicode)):
+    if isinstance(bases, str):
         bases = [bases]
     elif isinstance(bases, (list, tuple, set)):
         bases = list(bases)

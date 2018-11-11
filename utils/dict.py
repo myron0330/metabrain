@@ -1,16 +1,16 @@
+"""
 # -*- coding: UTF-8 -*-
 # **********************************************************************************#
 #     File: Custom dict structures for doing interesting things.
 # **********************************************************************************#
+"""
 from copy import deepcopy
 
 
 class AttributeDict(dict):
-
     """
     A dict that allows direct attribute access to its keys.
     """
-
     def __getattr__(self, item):
         if item in self.__dict__:
             return self.__dict__.__getitem__(item)
@@ -64,7 +64,7 @@ def dict_map(func, obj):
         func(func): function definition
         obj(dict): dict object
     """
-    for key, value in obj.iteritems():
+    for key, value in obj.items():
         changed_key, changed_value = func(key, value)
         obj[changed_key] = changed_value
     return obj

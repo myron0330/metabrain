@@ -1,10 +1,15 @@
+"""
 # -*- coding: UTF-8 -*-
 # **********************************************************************************#
 #     File: Action space.
 # **********************************************************************************#
+"""
 import random
 from gym import Space
-from .. core.enums import LongShort
+from .. core.enums import (
+    LongShort,
+    TradingAction
+)
 
 
 class LongShortSpace(Space):
@@ -16,7 +21,7 @@ class LongShortSpace(Space):
 
     def sample(self):
         """
-        Generate random action sample.
+        Generate random long short sample.
 
         Returns:
             int: 1:LONG / -1:SHORT
@@ -49,3 +54,11 @@ class TradingActionSpace(Space):
     """
     def __init__(self):
         super(TradingActionSpace, self).__init__(dtype=str)
+
+    def sample(self):
+        """
+        Generate random trading action sample.
+
+        Returns:
+            str: BUY/SELL/SHORT/COVER/FAIR
+        """
