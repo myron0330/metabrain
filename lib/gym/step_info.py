@@ -33,3 +33,8 @@ class StepInfo(ValueObject):
         self.done = done
         self.info = info
         self.reward = reward
+
+
+__all__ = [
+    'StepInfo'
+]

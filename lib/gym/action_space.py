@@ -62,3 +62,32 @@ class TradingActionSpace(Space):
         Returns:
             str: BUY/SELL/SHORT/COVER/FAIR
         """
+        sample_map = {
+            0: TradingAction.BUY,
+            1: TradingAction.SELL,
+            2: TradingAction.SHORT,
+            3: TradingAction.COVER,
+            4: TradingAction.FAIR
+        }
+        return sample_map[random.randint(0, 4)]
+
+    def contains(self, target):
+        """
+        Contains the target input or not.
+
+        Args:
+            target(string): target action.
+
+        Returns:
+            boolean: contains or not.
+        """
+        return TradingAction.has_value(target)
+
+    def __repr__(self):
+        return "TradingActionSpace(BUY/SELL/SHORT/COVER/FAIR)"
+
+
+__all__ = [
+    'LongShortSpace',
+    'TradingActionSpace'
+]

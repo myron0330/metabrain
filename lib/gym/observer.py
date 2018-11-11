@@ -21,3 +21,8 @@ class Observer(object):
             object: observation
         """
         raise NotImplementedError
+
+
+__all__ = [
+    'Observer'
+]

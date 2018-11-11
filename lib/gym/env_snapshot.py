@@ -33,3 +33,8 @@ class EnvSnapshot(ValueObject):
         self.action = action
         self.next_state = next_state or 0
         self.reward = reward or 0
+
+
+__all__ = [
+    'EnvSnapshot'
+]

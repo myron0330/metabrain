@@ -6,7 +6,7 @@
 """
 from gym import Env
 from utils.exceptions import Exceptions
-from . action_space import LongShortSpace
+from . action_space import TradingActionSpace
 from . env_snapshot import EnvSnapshot
 from . step_info import StepInfo
 from . observer import Observer
@@ -16,7 +16,7 @@ class MarketEnv(Env):
     """
     Base market environment inherited by gym Env.
     """
-    action_space = LongShortSpace()
+    action_space = TradingActionSpace()
     env_snapshot = EnvSnapshot()
     observer = Observer()
 
@@ -156,3 +156,8 @@ class MarketEnv(Env):
             gym.Env: The base non-wrapped gym.Env instance
         """
         return self
+
+
+__all__ = [
+    'MarketEnv'
+]
