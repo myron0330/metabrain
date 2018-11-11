@@ -6,9 +6,9 @@
 """
 
 
-class ValueObject(object):
+class SlottedObject(object):
     """
-    Value object with slots to shrink the memory.
+    Object with slots to shrink the memory.
     """
     __slots__ = []
 

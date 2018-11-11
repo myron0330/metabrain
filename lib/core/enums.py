@@ -35,22 +35,3 @@ class BaseEnums(object):
             boolean: belongs or not
         """
         return value in cls.__dict__.values()
-
-
-class LongShort(BaseEnums):
-    """
-    Long/short enums.
-    """
-    LONG = 1
-    SHORT = -1
-
-
-class TradingAction(BaseEnums):
-    """
-    Trading action enums.
-    """
-    BUY = 'BUY'     # long open
-    SELL = 'SELL'   # long close
-    SHORT = 'SHORT'     # short open
-    COVER = 'COVER'     # short close
-    FAIR = 'FAIR'       # hold
