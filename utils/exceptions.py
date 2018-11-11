@@ -1,11 +1,9 @@
 """
 # -*- coding: UTF-8 -*-
 # **********************************************************************************#
-#     File:
+#     File: Exception file.
 # **********************************************************************************#
 """
-import traceback
-
 
 error_wrapper = (lambda code, message: {'code': code, 'data': message, 'msg': message})
 
@@ -32,19 +30,43 @@ class EnvironmentsException(Exception):
     pass
 
 
-class Exceptions(object):
+class BaseExceptionEnumerate(object):
+    """
+    Base exception enumerate.
+    """
+    @classmethod
+    def enumerates(cls):
+        """
+        all exceptions enumerate.
+        """
+        return [value for attr, value in cls.__dict__.items()]
+
+    @classmethod
+    def error_types(cls):
+        """
+        all error types enumerate.
+        """
+        return tuple([
+            EnvironmentsException
+        ])
+
+
+class Exceptions(BaseExceptionEnumerate):
     """
     Enumerate exceptions.
     """
     INVALID_INITIALIZE_PARAMETERS = EnvironmentsException(error_wrapper(500, 'You have invalid input parameters'
                                                                              ' when you initialize your environment.'))
 
-    @classmethod
-    def enumerates(cls):
-        return [value for attr, value in cls.__dict__.items()]
 
-    @classmethod
-    def error_types(cls):
-        return tuple([
-            EnvironmentsException
-        ])
+class ExceptionsFormat(BaseExceptionEnumerate):
+    """
+    Enumerate exceptions format.
+    """
+    NOT_IN_ACTION_SPACE = EnvironmentsException(error_wrapper(500, 'Your action {} is not in action space {}'))
+
+
+__all__ = [
+    'Exceptions',
+    'ExceptionsFormat'
+]

@@ -29,10 +29,22 @@ class EnvSnapshot(ValueObject):
             reward(float): current reward.
         """
         super(EnvSnapshot, self).__init__()
-        self.state = state or 0
+        self.state = state
         self.action = action
-        self.next_state = next_state or 0
-        self.reward = reward or 0
+        self.next_state = next_state
+        self.reward = reward
+
+    def reset(self, **kwargs):
+        """
+        Reset the snapshot to default value.
+
+        Args:
+            **kwargs(**dict): key-word parameters.
+        """
+        default_parameters = {attribute: None for attribute in self.__slots__}
+        default_parameters.update(kwargs)
+        for key, value in default_parameters.items():
+            setattr(self, key, value)
 
 
 __all__ = [

@@ -15,7 +15,18 @@ class Observer(object):
         Observe according to condition claim from outside.
 
         Args:
-            **kwargs: key-word arguments
+            **kwargs(**dict): key-word arguments
+
+        Returns:
+            object: observation
+        """
+        raise NotImplementedError
+
+    def reset(self, **kwargs):
+        """
+        Reset the observer.
+        Args:
+            **kwargs(**dict): key-word arguments
 
         Returns:
             object: observation

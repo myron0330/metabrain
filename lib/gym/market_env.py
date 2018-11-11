@@ -5,7 +5,7 @@
 # **********************************************************************************#
 """
 from gym import Env
-from utils.exceptions import Exceptions
+from utils.exceptions import *
 from . action_space import TradingActionSpace
 from . env_snapshot import EnvSnapshot
 from . step_info import StepInfo
@@ -17,7 +17,7 @@ class MarketEnv(Env):
     Base market environment inherited by gym Env.
     """
     action_space = TradingActionSpace()
-    env_snapshot = EnvSnapshot()
+    env_snapshot = EnvSnapshot(state=0, next_state=0, reward=0)
     observer = Observer()
 
     def __init__(self, **kwargs):
@@ -57,6 +57,8 @@ class MarketEnv(Env):
         Returns:
             StepInfo: step info instance
         """
+        error_format = ExceptionsFormat.NOT_IN_ACTION_SPACE
+        assert action in self.action_space, error_format.format(action, self.action_space)
         state = self.env_snapshot.state
         next_state = state_transition(action=action, state=state)
         observation = self.observer.observe()
@@ -82,7 +84,8 @@ class MarketEnv(Env):
         Returns:
              observation(object): the initial observation of the space.
         """
-        raise NotImplementedError
+        self.env_snapshot.reset(state=0, next_state=0, reward=0)
+        self.observer.reset()
 
     def render(self, mode='human'):
         """Renders the environment.
