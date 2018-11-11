@@ -30,6 +30,13 @@ class EnvironmentsException(Exception):
     pass
 
 
+class TradeException(Exception):
+    """
+    Exception in trade.
+    """
+    pass
+
+
 class BaseExceptionEnumerate(object):
     """
     Base exception enumerate.
@@ -63,7 +70,9 @@ class ExceptionsFormat(BaseExceptionEnumerate):
     """
     Enumerate exceptions format.
     """
-    NOT_IN_ACTION_SPACE = EnvironmentsException(error_wrapper(500, 'Your action {} is not in action space {}'))
+    NOT_IN_ACTION_SPACE = EnvironmentsException(error_wrapper(500, 'Your action {} is not in action space {}.'))
+    INVALID_SECURITY_TYPE = TradeException(error_wrapper(500, 'Invalid security type: {}.'))
+    INVALID_FILLED_AMOUNT = TradeException(error_wrapper(500, 'Invalid filled amount: {}.'))
 
 
 __all__ = [
