@@ -5,11 +5,13 @@
 # **********************************************************************************#
 """
 from gym import Env
+from copy import deepcopy
 from utils.exceptions import *
 from . action_space import TradingActionSpace
 from . env_snapshot import EnvSnapshot
 from . step_info import StepInfo
 from . observer import Observer
+from . state import PortfolioState
 
 
 class MarketEnv(Env):
@@ -17,7 +19,7 @@ class MarketEnv(Env):
     Base market environment inherited by gym Env.
     """
     action_space = TradingActionSpace()
-    env_snapshot = EnvSnapshot(state=0, next_state=0, reward=0)
+    env_snapshot = EnvSnapshot()
     observer = Observer()
 
     def __init__(self, **kwargs):
@@ -39,6 +41,30 @@ class MarketEnv(Env):
         if not set(kwargs).issubset(set(valid_parameters)):
             raise Exceptions.INVALID_INITIALIZE_PARAMETERS
         self.__dict__.update(kwargs)
+        self._init_setting = {_: deepcopy(getattr(self, _, None)) for _ in valid_parameters}
+
+    @classmethod
+    def from_configs(cls, margin_cash=None, position_holding=None, reward_range=None):
+        """
+        Instantiated by some parameter configs.
+
+        Args:
+            margin_cash(float): initial margin cash
+            position_holding(FuturesPosition): initial position holding
+            reward_range(tuple): reward range as (min, max)
+
+        Returns:
+            MarketEnv: instance
+        """
+        portfolio_state = PortfolioState(margin_cash=margin_cash,
+                                         position_holding=position_holding)
+        env_snapshot = EnvSnapshot(state=portfolio_state)
+
+        kwargs = {
+            'env_snapshot': env_snapshot,
+            'reward_range': reward_range
+        }
+        return cls(**kwargs)
 
     def step(self, action, state_transition=None, reward_calculator=None, done_condition=None):
         """
@@ -88,8 +114,7 @@ class MarketEnv(Env):
         Returns:
              observation(object): the initial observation of the space.
         """
-        self.env_snapshot.reset(state=0, next_state=0, reward=0)
-        self.observer.reset()
+        self.__dict__.update(self._init_setting)
 
     def render(self, mode='human'):
         """Renders the environment.

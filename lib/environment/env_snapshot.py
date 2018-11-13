@@ -18,14 +18,14 @@ class EnvSnapshot(SlottedObject):
         'reward',
     ]
 
-    def __init__(self, state=None, action=None, next_state=None, reward=None):
+    def __init__(self, state=None, action=None, next_state=None, reward=0):
         """
         Initialize of current environment snapshot.
 
         Args:
-            state(int): current position holding state
-            action(int): 1:LONG / -1:SHORT
-            next_state(int): next position holding state
+            state(object): current state
+            action(object): target action
+            next_state(object): next state
             reward(float): cumulative reward
         """
         super(EnvSnapshot, self).__init__()
