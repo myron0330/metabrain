@@ -12,6 +12,8 @@ from . env_snapshot import EnvSnapshot
 from . step_info import StepInfo
 from . observer import Observer
 from . state import PortfolioState
+from .. trade import FuturesPosition
+from .. const import DEFAULT_MARGIN_CASH
 
 
 class MarketEnv(Env):
@@ -40,30 +42,34 @@ class MarketEnv(Env):
         }
         if not set(kwargs).issubset(set(valid_parameters)):
             raise Exceptions.INVALID_INITIALIZE_PARAMETERS
-        self.__dict__.update(kwargs)
+        for item in kwargs.items():
+            setattr(self, *item)
         self._init_setting = {_: deepcopy(getattr(self, _, None)) for _ in valid_parameters}
 
     @classmethod
-    def from_configs(cls, margin_cash=None, position_holding=None, reward_range=None):
+    def from_configs(cls, margin_cash=None, symbol=None, reward_range=None):
         """
         Instantiated by some parameter configs.
 
         Args:
             margin_cash(float): initial margin cash
-            position_holding(FuturesPosition): initial position holding
+            symbol(string): initial futures symbol
             reward_range(tuple): reward range as (min, max)
 
         Returns:
             MarketEnv: instance
         """
+        margin_cash = margin_cash or DEFAULT_MARGIN_CASH
+        position_holding = FuturesPosition(symbol=symbol)
         portfolio_state = PortfolioState(margin_cash=margin_cash,
                                          position_holding=position_holding)
         env_snapshot = EnvSnapshot(state=portfolio_state)
 
         kwargs = {
             'env_snapshot': env_snapshot,
-            'reward_range': reward_range
         }
+        if reward_range:
+            kwargs.update(reward_range)
         return cls(**kwargs)
 
     def step(self, action, state_transition=None, reward_calculator=None, done_condition=None):
