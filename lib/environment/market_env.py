@@ -65,7 +65,9 @@ class FuturesMarketEnv(Env):
         margin_cash = margin_cash or DEFAULT_MARGIN_CASH
         position_holding = FuturesPosition(symbol=symbol)
         portfolio_state = PortfolioState(margin_cash=margin_cash,
-                                         position_holding=position_holding)
+                                         position_holding=position_holding,
+                                         multiplier=multiplier,
+                                         margin_rate=margin_rate)
         env_snapshot = EnvSnapshot(state=portfolio_state)
 
         kwargs = {

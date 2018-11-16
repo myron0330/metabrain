@@ -6,6 +6,7 @@
 # **********************************************************************************#
 """
 from __future__ import division
+import numpy as np
 from utils.exceptions import *
 from . base import SecuritiesType
 
@@ -221,6 +222,60 @@ class FuturesPosition(LongShortPosition):
         cost = self.long_cost if trade.direction == 1 else self.short_cost
         close_pnl = trade.direction * (trade.transact_price - cost) * trade.filled_amount * multiplier
         return close_pnl
+
+    def update(self, trade, multiplier, margin_rate):
+        """
+        Update current position according to trade and other parameters.
+
+        Args:
+            trade(PMSTrade): Trade
+            multiplier(int): multiplier
+            margin_rate(float): margin rate
+
+        Returns:
+            float: portfolio profit and loss
+        """
+        if not trade.transact_amount or np.isnan(trade.transact_amount):
+            trade.transact_amount = 0
+        offset = 1 if trade.offset_flag == 'open' else -1
+        trade_mv = offset * trade.direction * trade.transact_amount * multiplier
+        if trade.direction == 1:
+            original_amount = self.long_amount
+            if trade.offset_flag == 'open':
+                # 更新持仓浮动盈亏
+                float_pnl = self.evaluate(trade.transact_price, multiplier, margin_rate)
+                self.long_amount += trade.transact_amount
+                self.long_cost = \
+                    (self.long_cost * original_amount + trade.transact_amount * trade.transact_price) / \
+                    self.long_amount if self.long_amount else 0
+                self.value += trade.transact_price * trade_mv
+                portfolio_value_added = float_pnl
+            else:
+                # 先处理成交的平仓盈亏, 再更新持仓浮动盈亏增量
+                close_pnl = self.calc_close_pnl(trade, multiplier)
+                self.short_amount -= trade.transact_amount
+                self.value -= self.price * trade_mv
+                float_pnl = self.evaluate(trade.transact_price, multiplier, margin_rate)
+                portfolio_value_added = close_pnl + float_pnl
+        else:
+            original_amount = self.short_amount
+            if trade.offset_flag == 'open':
+                # 更新持仓浮动盈亏
+                float_pnl = self.evaluate(trade.transact_price, multiplier, margin_rate)
+                self.short_amount += trade.transact_amount
+                self.short_cost = \
+                    (self.short_cost * original_amount + trade.transact_amount * trade.transact_price) / \
+                    self.short_amount if self.short_amount else 0
+                self.value += trade.transact_price * trade_mv
+                portfolio_value_added = float_pnl
+            else:
+                # 先处理成交的平仓盈亏, 再更新持仓浮动盈亏增量
+                close_pnl = self.calc_close_pnl(trade, multiplier)
+                self.long_amount -= trade.transact_amount
+                self.value -= self.price * trade_mv
+                float_pnl = self.evaluate(trade.transact_price, multiplier, margin_rate)
+                portfolio_value_added = close_pnl + float_pnl
+        return portfolio_value_added
 
     @classmethod
     def from_request(cls, request):
