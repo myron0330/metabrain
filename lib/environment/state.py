@@ -36,6 +36,13 @@ class PortfolioState(SlottedObject):
         self.multiplier = multiplier
         self.margin_rate = margin_rate
 
+    @property
+    def position_proportion(self):
+        """
+        The proportion of position holding margin.
+        """
+        return self.position_holding.total_margin / self.portfolio_value if self.portfolio_value else 0
+
     def evaluate(self, price=None):
         """
         Evaluate portfolio value according to price input.
