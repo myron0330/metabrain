@@ -9,7 +9,7 @@ from .. core.objects import SlottedObject
 
 class PortfolioState(SlottedObject):
     """
-    Portfolio state, including two essential information: 1) reference margin cash; 2) position holding.
+    Portfolio state, including two essential information.
     """
     __slots__ = [
         'margin_cash',
