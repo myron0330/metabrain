@@ -47,17 +47,17 @@ class FuturesMarketEnv(Env):
         self._init_setting = {_: deepcopy(getattr(self, _, None)) for _ in valid_parameters}
 
     @classmethod
-    def from_configs(cls, margin_cash=None, symbol=None, reward_range=None,
-                     multiplier=1, margin_rate=1.):
+    def from_configs(cls, margin_cash=None, symbol=None,
+                     multiplier=1, margin_rate=1., reward_range=None):
         """
         Instantiated by some parameter configs.
 
         Args:
             margin_cash(float): initial margin cash
             symbol(string): initial futures symbol
-            reward_range(tuple): reward range as (min, max)
             multiplier(int): multiplier
             margin_rate(float): margin rate
+            reward_range(tuple): reward range as (min, max)
 
         Returns:
             FuturesMarketEnv: instance
