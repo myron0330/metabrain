@@ -6,13 +6,13 @@
 """
 
 
-class Observer(object):
+class BarQuote(object):
     """
     Observer who provide real-time observations.
     """
-    def observe(self, **kwargs):
+    def push(self, **kwargs):
         """
-        Observe according to condition claim from outside.
+        Push the current bar data according to condition claim from outside.
 
         Args:
             **kwargs(**dict): key-word arguments
@@ -35,5 +35,5 @@ class Observer(object):
 
 
 __all__ = [
-    'Observer'
+    'BarQuote'
 ]

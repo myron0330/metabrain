@@ -4,6 +4,7 @@
 #     File:
 # **********************************************************************************#
 """
+from copy import copy
 from . base import (
     LongShort,
     TradingAction
@@ -16,9 +17,19 @@ def trading_action_transition(action, state):
 
     Args:
         action(string): Trading actions
-        state(float): position holding
+        state(PortfolioState): portfolio state
 
     Returns:
-        float: next state position holding
+        PortfolioState: updated portfolio state
     """
-    raise NotImplementedError
+    next_state = copy(state)
+    if action == TradingAction.BUY:
+        pass
+    if action == TradingAction.SELL:
+        pass
+    if action == TradingAction.SHORT:
+        pass
+    if action == TradingAction.COVER:
+        pass
+    if action == TradingAction.FAIR:
+        return next_state

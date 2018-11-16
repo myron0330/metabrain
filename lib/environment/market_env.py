@@ -10,19 +10,19 @@ from utils.exceptions import *
 from . action_space import TradingActionSpace
 from . env_snapshot import EnvSnapshot
 from . step_info import StepInfo
-from . observer import Observer
+from . bar_quote import BarQuote
 from . state import PortfolioState
 from .. trade import FuturesPosition
 from .. const import DEFAULT_MARGIN_CASH
 
 
-class MarketEnv(Env):
+class FuturesMarketEnv(Env):
     """
     Base market environment inherited by gym Env.
     """
     action_space = TradingActionSpace()
     env_snapshot = EnvSnapshot()
-    observer = Observer()
+    bar_quote = BarQuote()
 
     def __init__(self, **kwargs):
         """
@@ -38,7 +38,7 @@ class MarketEnv(Env):
             'action_space',
             'observation_space',
             'env_snapshot',
-            'observer'
+            'bar_quote'
         }
         if not set(kwargs).issubset(set(valid_parameters)):
             raise Exceptions.INVALID_INITIALIZE_PARAMETERS
@@ -47,7 +47,8 @@ class MarketEnv(Env):
         self._init_setting = {_: deepcopy(getattr(self, _, None)) for _ in valid_parameters}
 
     @classmethod
-    def from_configs(cls, margin_cash=None, symbol=None, reward_range=None):
+    def from_configs(cls, margin_cash=None, symbol=None, reward_range=None,
+                     multiplier=1, margin_rate=1.):
         """
         Instantiated by some parameter configs.
 
@@ -55,9 +56,11 @@ class MarketEnv(Env):
             margin_cash(float): initial margin cash
             symbol(string): initial futures symbol
             reward_range(tuple): reward range as (min, max)
+            multiplier(int): multiplier
+            margin_rate(float): margin rate
 
         Returns:
-            MarketEnv: instance
+            FuturesMarketEnv: instance
         """
         margin_cash = margin_cash or DEFAULT_MARGIN_CASH
         position_holding = FuturesPosition(symbol=symbol)
@@ -95,17 +98,17 @@ class MarketEnv(Env):
         reward_calculator = reward_calculator or (lambda n_s, o: 0)
         done_condition = done_condition or (lambda r: not (self.reward_range[0] <= r <= self.reward_range[1]))
 
+        bar_data = self.bar_quote.push()
         state = self.env_snapshot.state
         next_state = state_transition(action, state)
-        observation = self.observer.observe()
-        current_reward = reward_calculator(next_state, observation)
+        current_reward = reward_calculator(next_state, bar_data)
         self.env_snapshot.action = action
         self.env_snapshot.state = next_state
         self.env_snapshot.reward += current_reward
 
         done = done_condition(self.env_snapshot.reward)
         step_info_parameters = {
-            'observation': observation,
+            'observation': bar_data,
             'reward': self.env_snapshot.reward,
             'done': done,
             'info': dict()
@@ -197,5 +200,5 @@ class MarketEnv(Env):
 
 
 __all__ = [
-    'MarketEnv'
+    'FuturesMarketEnv'
 ]
