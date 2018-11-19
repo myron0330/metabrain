@@ -5,6 +5,7 @@
 # **********************************************************************************#
 """
 from .. core.objects import SlottedObject
+from .. trade.position import FuturesPosition
 
 
 class PortfolioState(SlottedObject):
@@ -58,6 +59,41 @@ class PortfolioState(SlottedObject):
                                                          margin_rate=self.margin_rate)
         self.portfolio_value += float_pnl_added
         self.margin_cash = self.portfolio_value - self.position_holding.total_margin
+
+    def feasible_open_quantity(self, margin_cash=None):
+        """
+        The reference open quantity that could be opened.
+
+        Args:
+            margin_cash(float): available margin cash
+
+        Returns:
+            int: feasible open quantity
+        """
+        margin_cash = margin_cash or self.margin_cash
+        open_quantity = \
+            int(margin_cash / self.margin_rate / self.multiplier / self.position_holding.price)\
+            if self.margin_rate and self.multiplier and self.position_holding.price else 0
+        return open_quantity
+
+    def feasible_close_quantity(self, target_cash=None, long_short='long'):
+        """
+        The reference close quantity according to target_cash input and max_holding.
+
+        Args:
+            target_cash(float): target cash
+            long_short(string): long or short
+
+        Returns:
+            int: feasible close quantity
+        """
+        target_cash = target_cash or self.margin_cash
+        close_quantity = \
+            int(target_cash / self.margin_rate / self.multiplier / self.position_holding.price)\
+            if self.margin_rate and self.multiplier and self.position_holding.price else 0
+        holding_quantity = \
+            self.position_holding.long_amount if long_short == 'long' else self.position_holding.short_amount
+        return min(close_quantity, holding_quantity)
 
     def _initiate_portfolio_value(self):
         """
