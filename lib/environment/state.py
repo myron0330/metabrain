@@ -37,6 +37,33 @@ class PortfolioState(SlottedObject):
         self.multiplier = multiplier
         self.margin_rate = margin_rate
 
+    @classmethod
+    def from_configs(cls, symbol=None, position_base=0, cost_base=None,
+                     margin_cash=0, multiplier=1, margin_rate=1.):
+        """
+        Generate from configs.
+
+        Args:
+            symbol(string): contract symbol
+            position_base(int): initial position base amount
+            cost_base(float): initial cost base price
+            margin_cash(float): margin cash
+            multiplier(int): contract multiplier
+            margin_rate(float): contract margin rate
+
+        Returns:
+            PortfolioState: instance
+        """
+        position_holding = FuturesPosition.from_configs(symbol=symbol,
+                                                        position_base=position_base,
+                                                        cost_base=cost_base,
+                                                        multiplier=multiplier,
+                                                        margin_rate=margin_rate)
+        return cls(margin_cash=margin_cash,
+                   position_holding=position_holding,
+                   multiplier=multiplier,
+                   margin_rate=margin_rate)
+
     @property
     def position_proportion(self):
         """

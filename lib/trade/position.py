@@ -188,7 +188,7 @@ class FuturesPosition(LongShortPosition):
     def __init__(self, symbol=None, price=None, long_amount=0, short_amount=0, long_margin=0, short_margin=0,
                  long_cost=0, short_cost=0, value=0, profit=0, today_long_open=0, today_short_open=0,
                  today_profit=0, offset_profit=0, pre_settlement_price=0, settlement_price=0,
-                 margin_rate=0):
+                 margin_rate=1., multiplier=1):
         super(FuturesPosition, self).__init__(symbol, price=price, long_amount=long_amount,
                                               short_amount=short_amount,
                                               long_margin=long_margin,
@@ -204,6 +204,39 @@ class FuturesPosition(LongShortPosition):
         self.pre_settlement_price = pre_settlement_price
         self.settlement_price = settlement_price
         self.margin_rate = margin_rate
+        self.multiplier = multiplier
+
+    @classmethod
+    def from_configs(cls, symbol=None, position_base=None, cost_base=None, multiplier=1, margin_rate=1.):
+        """
+        Generate from configs.
+        Args:
+            symbol(string): contract symbol
+            position_base(int): initial position base amount
+            cost_base(float): initial cost base price
+            multiplier(int): contract multiplier
+            margin_rate(float): contract margin rate
+
+        Returns:
+            FuturesPosition: instance
+        """
+        position_base = position_base or 0
+        cost_base = cost_base or 0
+        parameters = {
+            'symbol': symbol,
+            'price': cost_base,
+            'settlement_price': cost_base,
+            'pre_settlement_price': cost_base,
+            'margin_rate': margin_rate,
+            'value': abs(position_base * cost_base * multiplier)
+        }
+        if position_base > 0:
+            parameters['long_amount'] = position_base
+            parameters['long_margin'] = position_base * cost_base * multiplier * margin_rate
+        elif position_base < 0:
+            parameters['short_amount'] = abs(position_base)
+            parameters['short_margin'] = abs(position_base) * cost_base * multiplier * margin_rate
+        return cls(*parameters)
 
     def calc_close_pnl(self, trade, multiplier):
         """
@@ -342,6 +375,8 @@ class FuturesPosition(LongShortPosition):
             'today_long_open': self.today_long_open,
             'today_short_open': self.today_short_open,
             'today_profit': self.today_profit,
-            'offset_profit': self.offset_profit
+            'offset_profit': self.offset_profit,
+            'margin_rate': self.margin_rate,
+            'multiplier': self.multiplier
         }
         return redis_item
