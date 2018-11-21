@@ -38,8 +38,12 @@ class PortfolioState(SlottedObject):
         self.margin_rate = margin_rate
 
     @classmethod
-    def from_configs(cls, symbol=None, position_base=0, cost_base=None,
-                     margin_cash=0, multiplier=1, margin_rate=1.):
+    def from_configs(cls, symbol=None,
+                     position_base=0,
+                     cost_base=0,
+                     margin_cash=0,
+                     multiplier=1,
+                     margin_rate=1.):
         """
         Generate from configs.
 

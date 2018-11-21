@@ -10,19 +10,21 @@ from . base import (
 )
 
 
-def trading_action_transition(action, state, change_percent=0.1):
+def trading_action_transition(action, state, price, change_percent=0.1):
     """
     Trading action transition function.
 
     Args:
         action(string): Trading actions
         state(PortfolioState): portfolio state
+        price(float): current price
         change_percent(float): position change percent
 
     Returns:
         PortfolioState: updated portfolio state
     """
     next_state = copy(state)
+    next_state.evaluate(price)
     reference_position_proportion = next_state.position_proportion
     reference_portfolio_value = next_state.portfolio_value
     delta_cash = reference_portfolio_value * change_percent
@@ -45,5 +47,5 @@ def trading_action_transition(action, state, change_percent=0.1):
             close_quantity = next_state.feasible_close_quantity(target_cash=delta_cash, long_short='short')
             if close_quantity:
                 next_state.position_holding.short_amount -= close_quantity
-    if action == TradingAction.FAIR:
-        return next_state
+    next_state.evaluate(price)
+    return next_state

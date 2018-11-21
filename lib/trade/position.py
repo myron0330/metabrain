@@ -207,7 +207,7 @@ class FuturesPosition(LongShortPosition):
         self.multiplier = multiplier
 
     @classmethod
-    def from_configs(cls, symbol=None, position_base=None, cost_base=None, multiplier=1, margin_rate=1.):
+    def from_configs(cls, symbol=None, position_base=0, cost_base=0, multiplier=1, margin_rate=1.):
         """
         Generate from configs.
         Args:
@@ -220,8 +220,6 @@ class FuturesPosition(LongShortPosition):
         Returns:
             FuturesPosition: instance
         """
-        position_base = position_base or 0
-        cost_base = cost_base or 0
         parameters = {
             'symbol': symbol,
             'price': cost_base,
@@ -236,7 +234,7 @@ class FuturesPosition(LongShortPosition):
         elif position_base < 0:
             parameters['short_amount'] = abs(position_base)
             parameters['short_margin'] = abs(position_base) * cost_base * multiplier * margin_rate
-        return cls(*parameters)
+        return cls(**parameters)
 
     def calc_close_pnl(self, trade, multiplier):
         """
