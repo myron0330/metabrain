@@ -91,6 +91,22 @@ class PortfolioState(SlottedObject):
         self.portfolio_value += float_pnl_added
         self.margin_cash = self.portfolio_value - self.position_holding.total_margin
 
+    def update(self, trade, multiplier=1, margin_rate=1.):
+        """
+        Update current position according to trade and other parameters.
+
+        Args:
+            trade(PMSTrade): Trade
+            multiplier(int): multiplier
+            margin_rate(float): margin rate
+
+        Returns:
+            float: portfolio profit and loss
+        """
+        portfolio_added = self.position_holding.update(trade=trade, multiplier=multiplier, margin_rate=margin_rate)
+        self.portfolio_value += portfolio_added
+        self.margin_cash = self.portfolio_value - self.position_holding.total_margin
+
     def feasible_open_quantity(self, margin_cash=None):
         """
         The reference open quantity that could be opened.

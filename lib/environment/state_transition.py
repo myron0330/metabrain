@@ -8,6 +8,7 @@ from copy import copy
 from . base import (
     TradingAction
 )
+from .. trade.trade import Trade
 
 
 def trading_action_transition(action, state, price, change_percent=0.1):
@@ -35,17 +36,53 @@ def trading_action_transition(action, state, price, change_percent=0.1):
         open_quantity = next_state.feasible_open_quantity(margin_cash=delta_cash)
         if open_quantity:
             if action == TradingAction.BUY:
-                next_state.position_holding.long_amount += open_quantity
+                trade = Trade(order_id=None,
+                              symbol=next_state.position_holding.symbol,
+                              direction=1,
+                              offset_flag='open',
+                              transact_amount=open_quantity,
+                              transact_price=price,
+                              filled_time=None,
+                              commission=0,
+                              slippage=0)
+                next_state.update(trade)
             else:
-                next_state.position_holding.short_amount += open_quantity
+                trade = Trade(order_id=None,
+                              symbol=next_state.position_holding.symbol,
+                              direction=-1,
+                              offset_flag='open',
+                              transact_amount=open_quantity,
+                              transact_price=price,
+                              filled_time=None,
+                              commission=0,
+                              slippage=0)
+                next_state.update(trade)
     elif action in [TradingAction.SELL, TradingAction.COVER]:
         if action == TradingAction.SELL:
             close_quantity = next_state.feasible_close_quantity(target_cash=delta_cash, long_short='long')
             if close_quantity:
-                next_state.position_holding.long_amount -= close_quantity
+                trade = Trade(order_id=None,
+                              symbol=next_state.position_holding.symbol,
+                              direction=1,
+                              offset_flag='close',
+                              transact_amount=close_quantity,
+                              transact_price=price,
+                              filled_time=None,
+                              commission=0,
+                              slippage=0)
+                next_state.update(trade)
         else:
             close_quantity = next_state.feasible_close_quantity(target_cash=delta_cash, long_short='short')
             if close_quantity:
-                next_state.position_holding.short_amount -= close_quantity
+                trade = Trade(order_id=None,
+                              symbol=next_state.position_holding.symbol,
+                              direction=-1,
+                              offset_flag='close',
+                              transact_amount=close_quantity,
+                              transact_price=price,
+                              filled_time=None,
+                              commission=0,
+                              slippage=0)
+                next_state.update(trade)
     next_state.evaluate(price)
     return next_state
