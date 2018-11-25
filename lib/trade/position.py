@@ -241,17 +241,16 @@ class FuturesPosition(LongShortPosition):
         Calculate offset profit and loss without update relevant attributes.
 
         Args:
-            trade(PMSTrade): trade record
+            trade(Trade): trade record
             multiplier(float): multiplier
 
         Returns:
             float: offset profit and loss
         """
-        amount = self.long_amount if trade.direction == 1 else self.short_amount
-        if amount < trade.filled_amount:
-            raise ExceptionsFormat.INVALID_FILLED_AMOUNT.format(trade.filled_amount)
-        cost = self.long_cost if trade.direction == 1 else self.short_cost
-        close_pnl = trade.direction * (trade.transact_price - cost) * trade.filled_amount * multiplier
+        amount = self.long_amount if trade.direction == -1 else self.short_amount
+        if amount < trade.transact_amount:
+            raise ExceptionsFormat.INVALID_FILLED_AMOUNT
+        close_pnl = -trade.direction * (trade.transact_price - self.price) * trade.transact_amount * multiplier
         return close_pnl
 
     def update(self, trade, multiplier, margin_rate):
@@ -285,7 +284,7 @@ class FuturesPosition(LongShortPosition):
                 # 先处理成交的平仓盈亏, 再更新持仓浮动盈亏增量
                 close_pnl = self.calc_close_pnl(trade, multiplier)
                 self.short_amount -= trade.transact_amount
-                self.value -= self.price * trade_mv
+                self.value -= trade.transact_price * trade_mv
                 float_pnl = self.evaluate(trade.transact_price, multiplier, margin_rate)
                 portfolio_value_added = close_pnl + float_pnl
         else:

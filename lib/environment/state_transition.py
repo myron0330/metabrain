@@ -4,7 +4,7 @@
 #     File:
 # **********************************************************************************#
 """
-from copy import copy
+from copy import deepcopy
 from . base import (
     TradingAction
 )
@@ -24,7 +24,7 @@ def trading_action_transition(action, state, price, change_percent=0.1):
     Returns:
         PortfolioState: updated portfolio state
     """
-    next_state = copy(state)
+    next_state = deepcopy(state)
     next_state.evaluate(price)
     reference_position_proportion = next_state.position_proportion
     reference_portfolio_value = next_state.portfolio_value
@@ -63,7 +63,7 @@ def trading_action_transition(action, state, price, change_percent=0.1):
             if close_quantity:
                 trade = Trade(order_id=None,
                               symbol=next_state.position_holding.symbol,
-                              direction=1,
+                              direction=-1,
                               offset_flag='close',
                               transact_amount=close_quantity,
                               transact_price=price,
@@ -76,7 +76,7 @@ def trading_action_transition(action, state, price, change_percent=0.1):
             if close_quantity:
                 trade = Trade(order_id=None,
                               symbol=next_state.position_holding.symbol,
-                              direction=-1,
+                              direction=1,
                               offset_flag='close',
                               transact_amount=close_quantity,
                               transact_price=price,
