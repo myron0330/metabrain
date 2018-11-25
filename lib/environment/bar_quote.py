@@ -4,12 +4,34 @@
 #     File: Observer.
 # **********************************************************************************#
 """
+from .. data.database_api import *
 
 
 class BarQuote(object):
     """
     Observer who provide real-time observations.
     """
+    def __init__(self, bar_dict=None):
+        """
+        Initialize the bar dict information.
+
+        Args:
+            bar_dict(dict): bar dict
+        """
+        self.bar_dict = bar_dict or dict()
+
+    def load_history(self, **kwargs):
+        """
+        Load data from history data.
+
+        Args:
+            **kwargs:
+
+        Returns:
+
+        """
+        self.bar_dict
+
     def push(self, **kwargs):
         """
         Push the current bar data according to condition claim from outside.

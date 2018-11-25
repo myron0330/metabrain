@@ -91,7 +91,7 @@ class PortfolioState(SlottedObject):
         self.portfolio_value += float_pnl_added
         self.margin_cash = self.portfolio_value - self.position_holding.total_margin
 
-    def update(self, trade, multiplier=1, margin_rate=1.):
+    def update(self, trade, multiplier=None, margin_rate=None):
         """
         Update current position according to trade and other parameters.
 
@@ -103,6 +103,8 @@ class PortfolioState(SlottedObject):
         Returns:
             float: portfolio profit and loss
         """
+        multiplier = multiplier or self.multiplier
+        margin_rate = margin_rate or self.margin_rate
         portfolio_added = self.position_holding.update(trade=trade, multiplier=multiplier, margin_rate=margin_rate)
         self.portfolio_value += portfolio_added
         self.margin_cash = self.portfolio_value - self.position_holding.total_margin
