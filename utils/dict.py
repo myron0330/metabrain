@@ -70,9 +70,29 @@ def dict_map(func, obj):
     return obj
 
 
+def recursive_update(origin, target):
+    """
+    Recursive update target dict into origin dict.
+
+    Args:
+        origin(dict): origin dict
+        target(dict): target dict
+
+    Returns:
+        dict: updated dict
+    """
+    for key, value in target.items():
+        if isinstance(value, dict):
+            origin[key] = recursive_update(origin.get(key, dict()), value)
+        else:
+            origin[key] = value
+    return origin
+
+
 __all__ = [
     'DefaultDict',
     'CompositeDict',
     'AttributeDict',
-    'dict_map'
+    'dict_map',
+    'recursive_update'
 ]
