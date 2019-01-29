@@ -6,6 +6,7 @@
 """
 import re
 from string import Template
+from collections import OrderedDict
 
 
 VALUE_OBJECT_TEMPLATE = Template("""class ${object_name}(${bases}):
@@ -37,7 +38,7 @@ def generate_class_object(object_name, attributes,
         string: code sample
     """
     template = template or VALUE_OBJECT_TEMPLATE
-    attributes = attributes if isinstance(attributes, dict) else {_: None for _ in attributes}
+    attributes = attributes if isinstance(attributes, dict) else OrderedDict(zip(attributes, [None] * len(attributes)))
     slots_list = '\n'.join(["        '{}',".format(_) for _ in attributes])
     parameters = ', '.join(['{}={}'.format(key, value) for key, value in attributes.items()])
     attributes = '\n'.join(['        self.{} = {}'.format(_, _) for _ in attributes])
@@ -110,7 +111,23 @@ __all__ = [
 
 if __name__ == '__main__':
     test_object_name = 'Tracker'
-    test_attribute_list = ['basic_info', 'interface_info', 'error_info']
+    test_attribute_list = [
+        'symbol',
+        'long_amount',
+        'short_amount',
+        'long_value',
+        'short_margin',
+        'long_cost',
+        'short_cost',
+        'today_profit',
+        'long_profit',
+        'short_profit',
+        'portfolio_value',
+        'price',
+        'settlement_price',
+        'covered_amount',
+        'long_frozen_amount'
+    ]
     bases_list = 'object'
     test_code = generate_class_object(test_object_name, test_attribute_list,
                                       bases=bases_list, with_dump=True,
