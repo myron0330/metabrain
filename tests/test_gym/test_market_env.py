@@ -5,20 +5,14 @@
 # **********************************************************************************#
 """
 from unittest import TestCase
-from lib.environment.market_env import MarketEnv
+from lib.environment.market_env import FuturesMarketEnv
 
 
 class TestMarketEnv(TestCase):
 
-    def setUp(self):
+    def test_instantiated_by_configs(self):
         """
-        Set up the initialize.
+        Test instantiated by configs.
         """
-        self.market_env = MarketEnv()
-
-    def test_step(self):
-        """
-        Test market env.
-        """
-        action = 'BUY'
-        self.market_env.step()
+        market_env = FuturesMarketEnv.from_configs(margin_cash=1e6, symbol='ZN1902')
+        print(market_env)

@@ -6,6 +6,7 @@
 # **********************************************************************************#
 """
 from __future__ import division
+import numpy as np
 from utils.exceptions import *
 from . base import SecuritiesType
 
@@ -61,29 +62,37 @@ class LongShortPosition(object):
         self.today_profit = today_profit
         self.offset_profit = offset_profit
 
-    def evaluate(self, reference_price, multiplier=1., margin_rate=1.):
+    @property
+    def total_margin(self):
         """
-        Evaluate position by reference price, multiplier and margin rate.
+        Total margin.
+        """
+        return self.long_margin + self.short_margin
+
+    def evaluate(self, price, multiplier=1., margin_rate=1.):
+        """
+        Update price, margin and profit, return the incremental floating earning.
+
         Args:
-            reference_price(float): price
-            multiplier(float): multiplier of futures
-            margin_rate(float): margin rate of futures
+            price(float): reference price
+            multiplier(float): contract multiplier
+            margin_rate(float): contract margin rate
 
         Returns:
-             tuple(LongShortPosition, string): position instance, portfolio value
+            float: portfolio profit and loss
         """
-        long_mv = reference_price * self.long_amount * multiplier
-        short_mv = reference_price * self.short_amount * multiplier
+        long_market_value = price * self.long_amount * multiplier
+        short_market_value = price * self.short_amount * multiplier
         if not self.value:
             self.value = multiplier * (self.long_cost * self.long_amount - self.short_cost * self.short_amount)
-        float_pnl_added = long_mv - short_mv - self.value
-        self.price = reference_price
-        self.long_margin = long_mv * margin_rate
-        self.short_margin = short_mv * margin_rate
-        self.profit = long_mv - short_mv - multiplier * (
+        float_pnl_added = long_market_value - short_market_value - self.value
+        self.price = price
+        self.long_margin = long_market_value * margin_rate
+        self.short_margin = short_market_value * margin_rate
+        self.profit = long_market_value - short_market_value - multiplier * (
             self.long_cost * self.long_amount - self.short_cost * self.short_amount)
-        self.value = long_mv - short_mv
-        return self, float_pnl_added
+        self.value = long_market_value - short_market_value
+        return float_pnl_added
 
     @classmethod
     def from_request(cls, request):
@@ -179,7 +188,7 @@ class FuturesPosition(LongShortPosition):
     def __init__(self, symbol=None, price=None, long_amount=0, short_amount=0, long_margin=0, short_margin=0,
                  long_cost=0, short_cost=0, value=0, profit=0, today_long_open=0, today_short_open=0,
                  today_profit=0, offset_profit=0, pre_settlement_price=0, settlement_price=0,
-                 margin_rate=0):
+                 margin_rate=1., multiplier=1):
         super(FuturesPosition, self).__init__(symbol, price=price, long_amount=long_amount,
                                               short_amount=short_amount,
                                               long_margin=long_margin,
@@ -195,24 +204,109 @@ class FuturesPosition(LongShortPosition):
         self.pre_settlement_price = pre_settlement_price
         self.settlement_price = settlement_price
         self.margin_rate = margin_rate
+        self.multiplier = multiplier
+
+    @classmethod
+    def from_configs(cls, symbol=None, position_base=0, cost_base=0, multiplier=1, margin_rate=1.):
+        """
+        Generate from configs.
+        Args:
+            symbol(string): contract symbol
+            position_base(int): initial position base amount
+            cost_base(float): initial cost base price
+            multiplier(int): contract multiplier
+            margin_rate(float): contract margin rate
+
+        Returns:
+            FuturesPosition: instance
+        """
+        parameters = {
+            'symbol': symbol,
+            'price': cost_base,
+            'settlement_price': cost_base,
+            'pre_settlement_price': cost_base,
+            'margin_rate': margin_rate,
+            'value': abs(position_base * cost_base * multiplier)
+        }
+        if position_base > 0:
+            parameters['long_amount'] = position_base
+            parameters['long_margin'] = position_base * cost_base * multiplier * margin_rate
+        elif position_base < 0:
+            parameters['short_amount'] = abs(position_base)
+            parameters['short_margin'] = abs(position_base) * cost_base * multiplier * margin_rate
+        return cls(**parameters)
 
     def calc_close_pnl(self, trade, multiplier):
         """
-        仅计算并返回平仓盈亏，不更新价格、amount及value
+        Calculate offset profit and loss without update relevant attributes.
 
         Args:
-            trade(PMSTrade): 成交记录
-            multiplier(float): 合约乘数
+            trade(Trade): trade record
+            multiplier(float): multiplier
 
-        Returns(float): 平仓盈亏
-
+        Returns:
+            float: offset profit and loss
         """
-        amount = self.long_amount if trade.direction == 1 else self.short_amount
-        if amount < trade.filled_amount:
-            raise ExceptionsFormat.INVALID_FILLED_AMOUNT.format(trade.filled_amount)
-        cost = self.long_cost if trade.direction == 1 else self.short_cost
-        close_pnl = trade.direction * (trade.transact_price - cost) * trade.filled_amount * multiplier
+        amount = self.long_amount if trade.direction == -1 else self.short_amount
+        if amount < trade.transact_amount:
+            raise ExceptionsFormat.INVALID_FILLED_AMOUNT
+        close_pnl = -trade.direction * (trade.transact_price - self.price) * trade.transact_amount * multiplier
         return close_pnl
+
+    def update(self, trade, multiplier, margin_rate):
+        """
+        Update current position according to trade and other parameters.
+
+        Args:
+            trade(PMSTrade): Trade
+            multiplier(int): multiplier
+            margin_rate(float): margin rate
+
+        Returns:
+            float: portfolio profit and loss
+        """
+        if not trade.transact_amount or np.isnan(trade.transact_amount):
+            trade.transact_amount = 0
+        offset = 1 if trade.offset_flag == 'open' else -1
+        trade_mv = offset * trade.direction * trade.transact_amount * multiplier
+        if trade.direction == 1:
+            original_amount = self.long_amount
+            if trade.offset_flag == 'open':
+                # 更新持仓浮动盈亏
+                float_pnl = self.evaluate(trade.transact_price, multiplier, margin_rate)
+                self.long_amount += trade.transact_amount
+                self.long_cost = \
+                    (self.long_cost * original_amount + trade.transact_amount * trade.transact_price) / \
+                    self.long_amount if self.long_amount else 0
+                self.value += trade.transact_price * trade_mv
+                portfolio_value_added = float_pnl
+            else:
+                # 先处理成交的平仓盈亏, 再更新持仓浮动盈亏增量
+                close_pnl = self.calc_close_pnl(trade, multiplier)
+                self.short_amount -= trade.transact_amount
+                self.value -= trade.transact_price * trade_mv
+                float_pnl = self.evaluate(trade.transact_price, multiplier, margin_rate)
+                portfolio_value_added = close_pnl + float_pnl
+        else:
+            original_amount = self.short_amount
+            if trade.offset_flag == 'open':
+                # 更新持仓浮动盈亏
+                float_pnl = self.evaluate(trade.transact_price, multiplier, margin_rate)
+                self.short_amount += trade.transact_amount
+                self.short_cost = \
+                    (self.short_cost * original_amount + trade.transact_amount * trade.transact_price) / \
+                    self.short_amount if self.short_amount else 0
+                self.value += trade.transact_price * trade_mv
+                portfolio_value_added = float_pnl
+            else:
+                # 先处理成交的平仓盈亏, 再更新持仓浮动盈亏增量
+                close_pnl = self.calc_close_pnl(trade, multiplier)
+                self.long_amount -= trade.transact_amount
+                self.value -= self.price * trade_mv
+                float_pnl = self.evaluate(trade.transact_price, multiplier, margin_rate)
+                portfolio_value_added = close_pnl + float_pnl
+        self.evaluate(trade.transact_price, multiplier, margin_rate)
+        return portfolio_value_added
 
     @classmethod
     def from_request(cls, request):
@@ -279,6 +373,8 @@ class FuturesPosition(LongShortPosition):
             'today_long_open': self.today_long_open,
             'today_short_open': self.today_short_open,
             'today_profit': self.today_profit,
-            'offset_profit': self.offset_profit
+            'offset_profit': self.offset_profit,
+            'margin_rate': self.margin_rate,
+            'multiplier': self.multiplier
         }
         return redis_item

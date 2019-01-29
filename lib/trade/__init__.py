@@ -6,9 +6,8 @@
 """
 from . cost import Commission, Slippage
 from . position import (
-    Position,
-    MetaPosition,
-    LongShortPosition
+    LongShortPosition,
+    FuturesPosition
 )
 from . trade import (
     Trade,
@@ -19,9 +18,8 @@ from . trade import (
 __all__ = [
     'Commission',
     'Slippage',
-    'Position',
-    'MetaPosition',
     'LongShortPosition',
+    'FuturesPosition',
     'Trade',
     'MetaTrade'
 ]
