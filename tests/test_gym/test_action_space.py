@@ -3,7 +3,7 @@
 #     File:  Test action space.
 # **********************************************************************************#
 from unittest import TestCase
-from lib.environment.action_space import LongShortSpace
+from brain.trade_env.action_space import LongShortSpace
 
 
 class TestActionSpace(TestCase):

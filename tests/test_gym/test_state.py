@@ -5,9 +5,9 @@
 # **********************************************************************************#
 """
 from unittest import TestCase
-from lib.environment.state import PortfolioState
-from lib.environment.base import TradingAction
-from lib.environment.state_transition import trading_action_transition
+from brain.trade_env.state import PortfolioState
+from brain.trade_env.base import TradingAction
+from brain.trade_env.state_transition import trading_action_transition
 
 
 class TestState(TestCase):

@@ -63,7 +63,7 @@ class Exceptions(BaseExceptionEnumerate):
     Enumerate exceptions.
     """
     INVALID_INITIALIZE_PARAMETERS = EnvironmentsException(error_wrapper(500, 'You have invalid input parameters'
-                                                                             ' when you initialize your environment.'))
+                                                                             ' when you initialize your trade_env.'))
 
 
 class ExceptionsFormat(BaseExceptionEnumerate):

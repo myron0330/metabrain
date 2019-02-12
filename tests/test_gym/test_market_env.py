@@ -5,7 +5,7 @@
 # **********************************************************************************#
 """
 from unittest import TestCase
-from lib.environment.market_env import FuturesMarketEnv
+from brain.trade_env.market_env import FuturesMarketEnv
 
 
 class TestMarketEnv(TestCase):

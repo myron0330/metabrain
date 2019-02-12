@@ -20,7 +20,7 @@ class EnvSnapshot(SlottedObject):
 
     def __init__(self, state=None, action=None, next_state=None, reward=0):
         """
-        Initialize of current environment snapshot.
+        Initialize of current trade_env snapshot.
 
         Args:
             state(object): current state
