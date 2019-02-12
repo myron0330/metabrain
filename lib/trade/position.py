@@ -305,6 +305,12 @@ class FuturesPosition(LongShortPosition):
                 self.value -= self.price * trade_mv
                 float_pnl = self.evaluate(trade.transact_price, multiplier, margin_rate)
                 portfolio_value_added = close_pnl + float_pnl
+        if not self.long_amount:
+            self.long_cost = 0
+            self.long_margin = 0
+        if not self.short_amount:
+            self.short_cost = 0
+            self.short_margin = 0
         self.evaluate(trade.transact_price, multiplier, margin_rate)
         return portfolio_value_added
 
