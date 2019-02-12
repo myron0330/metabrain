@@ -23,7 +23,7 @@ class StepInfo(SlottedObject):
         Initialize of one step info.
 
         Args:
-            observation(object): agent's observation of the current trade_env
+            observation(object): agent's observation of the current environment
             reward(float): amount of reward returned after previous action
             done(boolean): whether the episode has ended, in which case further step() calls will return undefined results
             info(dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)

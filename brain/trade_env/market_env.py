@@ -1,7 +1,7 @@
 """
 # -*- coding: UTF-8 -*-
 # **********************************************************************************#
-#     File: Market trade_env.
+#     File: Market environment.
 # **********************************************************************************#
 """
 from gym import Env
@@ -18,7 +18,7 @@ from .. const import DEFAULT_MARGIN_CASH
 
 class FuturesMarketEnv(Env):
     """
-    Base market trade_env inherited by gym Env.
+    Base market environment inherited by gym Env.
     """
     action_space = TradingActionSpace()
     env_snapshot = EnvSnapshot()
@@ -26,10 +26,10 @@ class FuturesMarketEnv(Env):
 
     def __init__(self, **kwargs):
         """
-        Initialize your trade_env parameter here.
+        Initialize your environment parameter here.
 
         Args:
-            **kwargs(**dict): key-word arguments when you initialize your trade_env.
+            **kwargs(**dict): key-word arguments when you initialize your environment.
         """
         valid_parameters = {
             'metadata',
@@ -79,9 +79,9 @@ class FuturesMarketEnv(Env):
 
     def step(self, action, state_transition=None, reward_calculator=None, done_condition=None):
         """
-        Run one time step of the trade_env's dynamics. When end of
+        Run one time step of the environment's dynamics. When end of
         episode is reached, you are responsible for calling `reset()`
-        to reset this trade_env's state.
+        to reset this environment's state.
 
         Accepts an action and returns a tuple (observation, reward, done, info).
 
@@ -120,7 +120,7 @@ class FuturesMarketEnv(Env):
 
     def reset(self):
         """
-        Resets the state of the trade_env and returns an initial observation.
+        Resets the state of the environment and returns an initial observation.
 
         Returns:
              observation(object): the initial observation of the space.
@@ -128,9 +128,9 @@ class FuturesMarketEnv(Env):
         self.__dict__.update(self._init_setting)
 
     def render(self, mode='human'):
-        """Renders the trade_env.
+        """Renders the environment.
 
-        The set of supported modes varies per trade_env. (And some
+        The set of supported modes varies per environment. (And some
         environments do not support rendering at all.) By convention,
         if mode is:
 
@@ -175,7 +175,7 @@ class FuturesMarketEnv(Env):
         return
 
     def seed(self, seed=None):
-        """Sets the seed for this trade_env's random number generator(s).
+        """Sets the seed for this environment's random number generator(s).
 
         Note:
             Some environments use multiple pseudorandom number generators.
@@ -183,7 +183,7 @@ class FuturesMarketEnv(Env):
             there aren't accidental correlations between multiple generators.
 
         Returns:
-            list<bigint>: Returns the list of seeds used in this trade_env's random
+            list<bigint>: Returns the list of seeds used in this environment's random
               number generators. The first value in the list should be the
               "main" seed, or the value which a reproducer should pass to
               'seed'. Often, the main seed equals the provided 'seed', but
@@ -193,7 +193,7 @@ class FuturesMarketEnv(Env):
 
     @property
     def unwrapped(self):
-        """Completely unwrap this trade_env.
+        """Completely unwrap this environment.
 
         Returns:
             gym.Env: The base non-wrapped gym.Env instance
